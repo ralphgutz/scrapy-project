@@ -1,4 +1,5 @@
 import scrapy
+from bookscraper.items import BookItem
 
 
 class BookspiderSpider(scrapy.Spider):
@@ -34,17 +35,20 @@ class BookspiderSpider(scrapy.Spider):
     def parse_book_page(self, response):  # Parse each book detail (each book has its own webpage)
         table_row = response.css('table tr')
 
-        yield {
-            'url': response.url,
-            'title': response.css('.product_main h1::text').get(),
-            'product_type': table_row[1].css('td::text').get(),
-            'price_excl_tax': table_row[2].css('td::text').get(),
-            'price_incl_tax': table_row[3].css('td::text').get(),
-            'tax': table_row[4].css('td::text').get(),
-            'availability': table_row[5].css('td::text').get(),
-            'num_reviews': table_row[6].css('td::text').get(),
-            'stars': response.css('p.star-rating::attr(class)').get(),
-            'category': response.xpath('//*[@id="default"]/div/div/ul/li[3]/a').css('a::text').get(),  # XPath of an element (check in scrapy shell, use Chrome to copy XPath)
-            'description': response.xpath('//*[@id="content_inner"]/article/p').css('p::text').get(),
-            'price': response.css('.price_color::text').get()
-        }
+        book_item = BookItem()
+
+        book_item['url'] = response.url
+        book_item['title'] = response.css('.product_main h1::text').get()
+        book_item['product_type'] = table_row[1].css('td::text').get()
+        book_item['price_excl_tax'] = table_row[2].css('td::text').get()
+        book_item['price_incl_tax'] = table_row[3].css('td::text').get()
+        book_item['tax'] = table_row[4].css('td::text').get()
+        book_item['availability'] = table_row[5].css('td::text').get()
+        book_item['num_reviews'] = table_row[6].css('td::text').get()
+        book_item['stars'] = response.css('p.star-rating::attr(class)').get()
+        book_item['category'] = response.xpath('//*[@id="default"]/div/div/ul/li[3]/a').css('a::text').get()  # XPath of an element (check in scrapy shell, use Chrome to copy XPath)
+        book_item['description'] = response.xpath('//*[@id="content_inner"]/article/p').css('p::text').get()
+        book_item['price'] = response.css('.price_color::text').get()
+
+        yield book_item
+        
